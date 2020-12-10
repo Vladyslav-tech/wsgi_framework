@@ -1,2 +1,7 @@
 # wsgi_framework
-wsgi framework on the course design patterns
+
+gunicorn
+gunicorn simple_wsgi:application
+
+uwsgi
+uwsgi --http :8000 --wsgi-file simple_wsgi.py
