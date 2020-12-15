@@ -20,3 +20,7 @@ def contacts_view(request):
         return '200 OK', render('contacts.html')
     else:
         return '200 OK', render('contacts.html')
+
+
+def authors_view(request):
+    return '200: OK', render('authors.html', object_list=[{'name': 'Leo'}, {'name': 'Kate'}])
