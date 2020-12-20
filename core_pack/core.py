@@ -40,6 +40,12 @@ class Application:
             start_response('404 Not Found', [('Content-Type', 'text/html')])
             return [b'Not Found']
 
+    def add_route(self, url):
+        def inner(view):
+            self.urlpatterns[url] = view
+
+        return inner
+
 
     def get_wsgi_input_data(self, environ):
         """Получаем данные из post запроса в байтах"""
@@ -73,7 +79,6 @@ class Application:
         """
         result = {}
         encoding = self.encoding_detecting(data)
-        print(encoding)
 
         if data:
             data_str = data.decode(encoding=encoding)
@@ -87,3 +92,24 @@ class Application:
         detector.close()
         return detector.result['encoding']
 
+class DebugApplication(Application):
+
+    def __init__(self, urlpatterns, fronts):
+        self.application = Application(urlpatterns, fronts)
+        super().__init__(urlpatterns, fronts)
+
+    def __call__(self, environ, response):
+        print('DEBUG MODE')
+        print(environ)
+        return self.application(environ, response)
+
+
+class MockApplication(Application):
+
+    def __init__(self, urlpatterns, fronts):
+        self.application = Application(urlpatterns, fronts)
+        super().__init__(urlpatterns, fronts)
+
+    def __call__(self, environ, response):
+        response('200 OK', [('Content-Type', 'text/html')])
+        return [b'Hello from Mock']
