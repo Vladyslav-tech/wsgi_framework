@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Создание курса{% endblock %}
+{% block main %}
+    <h1>Создание пользователя</h1>
+    <form method="post">
+        <input type="text" name="first_name" placeholder="Имя">
+        <input type="text" name="last_name" placeholder="Фамилия">
+        <select size="2" name="user_category">
+            {% for category in user_catigories %}
+            <option value="{{category}}">{{category}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Сохранить</button>
+    </form>
+{% endblock %}

@@ -41,6 +41,10 @@ class Application:
             return [b'Not Found']
 
     def add_route(self, url):
+        """
+        Декоратор.Добавляет url и view для этого
+        view в urlpatterns
+        """
         def inner(view):
             self.urlpatterns[url] = view
 
@@ -104,7 +108,7 @@ class DebugApplication(Application):
         return self.application(environ, response)
 
 
-class MockApplication(Application):
+class FakeApplication(Application):
 
     def __init__(self, urlpatterns, fronts):
         self.application = Application(urlpatterns, fronts)
@@ -112,4 +116,4 @@ class MockApplication(Application):
 
     def __call__(self, environ, response):
         response('200 OK', [('Content-Type', 'text/html')])
-        return [b'Hello from Mock']
+        return [b'Hello from Fake']
