@@ -1,4 +1,3 @@
-
 from patterns.prototype import PrototypeMixin
 
 
@@ -34,8 +33,8 @@ class UserFactory:
     }
 
     @classmethod
-    def create(cls, type_):
-        return cls.types[type_]()
+    def create(cls, type_, first_name, last_name):
+        return cls.types[type_](first_name, last_name)
 
 
 class Category:
@@ -85,15 +84,15 @@ class CourseFactory:
 
 
 class Site:
-    # Интерфейс
+    # Интерфейс сайта
     def __init__(self):
         self.teachers = []
         self.students = []
         self.courses = []
         self.categories = []
 
-    def create_user(self, type_):
-        return UserFactory.create(type_)
+    def create_user(self, type_, first_name, last_name):
+        return UserFactory.create(type_, first_name, last_name)
 
     def create_category(self, name, category=None):
         """Создание категории"""
