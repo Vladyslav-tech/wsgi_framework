@@ -1,6 +1,7 @@
 from patterns.prototype import PrototypeMixin
 from patterns.observer import Subject, Observer
 import jsonpickle
+from orm_pack.unit_of_work import DomainObject
 
 
 class User:
@@ -21,15 +22,15 @@ class Teacher(User):
     pass
 
 
-class Student(User):
+class Student(User, DomainObject):
     def __init__(self, name):
         self.courses = []
         super().__init__(name)
 
 
-class SimpleFactory:
-    def __init__(self, types=None):
-        self.types = types or {}
+# class SimpleFactory:
+#     def __init__(self, types=None):
+#         self.types = types or {}
 
 
 class UserFactory:
@@ -170,7 +171,6 @@ class Site:
         for item in self.courses:
             if item.name == name:
                 return item
-        return None
 
     def get_student(self, name) -> Student:
         for item in self.students:
