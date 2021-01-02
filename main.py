@@ -2,6 +2,8 @@ from core_pack.core import Application, DebugApplication, FakeApplication
 from core_pack.template import render
 from models import Site, BaseSerializer, EmailNotifier, SmsNotifier
 from core_pack.core_cbv import CreateView, ListView
+from orm_pack.unit_of_work import UnitOfWork
+from mappers import MapperRegistry
 
 from log.logging import Logger, debug
 
@@ -11,6 +13,8 @@ site = Site()
 logger = Logger('main')
 email_notifier = EmailNotifier()
 sms_notifier = SmsNotifier()
+UnitOfWork.new_current()
+UnitOfWork.get_current().set_mapper_registry(MapperRegistry)
 
 # page controllers
 def main_view(request):
@@ -31,34 +35,14 @@ def create_course(request):
             print(category)
 
             course = site.create_course('record', name, category)
+            course.observers.append(email_notifier)
+            course.observers.append(sms_notifier)
             site.courses.append(course)
-        return '200 OK', render('create_course.html')
+        categories = site.categories
+        return '200 OK', render('create_course.html', categories=categories)
     else:
         categories = site.categories
         return '200 OK', render('create_course.html', categories=categories)
-
-
-# def create_user(request):
-#     """Создание Пользователя"""
-#     if request['method'] == 'POST':
-#         data = request['data']
-#         first_name = data['first_name']
-#         last_name = data['last_name']
-#         user_category = data.get('user_category')
-#         print(f"user_category : {user_category}")
-#
-#         user = site.create_user(user_category, first_name, last_name)
-#         if user_category == 'student':
-#             site.students.append(user)
-#         elif user_category == 'teacher':
-#             site.teachers.append(user)
-#
-#         user_catigories = ['student', 'teacher']
-#         return '200 OK', render('create_user.html', user_catigories=user_catigories)
-#     else:
-#         user_catigories = ['student', 'teacher']
-#         return '200 OK', render('create_user.html', user_catigories=user_catigories)
-
 
 
 class CategoryCreateView(CreateView):
@@ -89,8 +73,12 @@ class CategoryListView(ListView):
 
 class StudentListView(ListView):
     """Класс списка студентов"""
-    queryset = site.students
+
     template_name = 'student_list.html'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('student')
+        return mapper.all()
 
 
 class StudentCreateView(CreateView):
@@ -101,6 +89,8 @@ class StudentCreateView(CreateView):
         name = data['name']
         new_obj = site.create_user('student', name)
         site.students.append(new_obj)
+        new_obj.mark_new()
+        UnitOfWork.get_current().commit()
 
 
 class AddStudentByCourseCreateView(CreateView):
